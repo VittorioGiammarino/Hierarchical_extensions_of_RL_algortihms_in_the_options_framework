@@ -1,0 +1,19 @@
+#!/bin/bash -l
+
+#$ -l h_rt=96:00:00
+
+#$ -m e
+
+#$ -j y
+
+#$ -N HTRPO_Walker2d-v3
+
+#$ -V
+
+#$ -pe omp 4
+#$ -l mem_per_core=4G
+
+module load miniconda
+
+conda activate /project/onr/vgiammar/RL_env
+python main.py --mode HRL --policy HTRPO --env Walker2d-v3 --seed $1 --number_options $2

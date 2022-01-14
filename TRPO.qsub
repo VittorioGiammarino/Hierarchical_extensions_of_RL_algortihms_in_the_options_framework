@@ -1,0 +1,19 @@
+#!/bin/bash -l
+
+#$ -l h_rt=72:00:00
+
+#$ -m e
+
+#$ -j y
+
+#$ -N TRPO_Walker2d-v3
+
+#$ -V
+
+#$ -pe omp 4
+#$ -l mem_per_core=4G
+
+module load miniconda
+
+conda activate /project/onr/vgiammar/RL_env
+python main.py --mode RL --policy TRPO --env Walker2d-v3 --seed $1

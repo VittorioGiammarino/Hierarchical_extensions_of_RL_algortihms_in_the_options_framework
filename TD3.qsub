@@ -1,0 +1,19 @@
+#!/bin/bash -l
+
+#$ -l h_rt=72:00:00
+
+#$ -m e
+
+#$ -j y
+
+#$ -N TD3_HumanoidStandup-v2
+
+#$ -V
+
+#$ -pe omp 4
+#$ -l mem_per_core=4G
+
+module load miniconda
+
+conda activate /project/onr/vgiammar/RL_env
+python main.py --mode RL --policy TD3 --env HumanoidStandup-v2 --seed 1

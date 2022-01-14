@@ -1,0 +1,21 @@
+#!/bin/bash -l
+
+#$ -l h_rt=72:00:00
+
+#$ -m e
+
+#$ -j y
+
+#$ -N PPO_Walker2d-v3
+
+#$ -V
+
+#$ -pe omp 4
+#$ -l mem_per_core=4G
+
+module load miniconda
+
+conda activate /project/onr/vgiammar/RL_env
+python main.py --mode RL --policy PPO --env Walker2d-v3 --seed $1
+
+
