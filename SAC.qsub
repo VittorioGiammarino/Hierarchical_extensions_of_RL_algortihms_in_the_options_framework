@@ -1,12 +1,12 @@
 #!/bin/bash -l
 
-#$ -l h_rt=72:00:00
+#$ -l h_rt=172:00:00
 
 #$ -m e
 
 #$ -j y
 
-#$ -N SAC_Walker2d-v3
+#$ -N SAC_BipedalWalkerHardcore-v3
 
 #$ -V
 
@@ -16,4 +16,4 @@
 module load miniconda
 
 conda activate /project/onr/vgiammar/RL_env
-python main.py --mode RL --policy SAC --env Walker2d-v3 --seed $1
+python main.py --mode RL --policy SAC --env BipedalWalkerHardcore-v3 --max_iter 300 --seed $1

@@ -1,12 +1,12 @@
 #!/bin/bash -l
 
-#$ -l h_rt=72:00:00
+#$ -l h_rt=216:00:00
 
 #$ -m e
 
 #$ -j y
 
-#$ -N GePPO_Walker2d-v3
+#$ -N GePPO_BipedalWalkerHardcore-v3
 
 #$ -V
 
@@ -16,6 +16,6 @@
 module load miniconda
 
 conda activate /project/onr/vgiammar/RL_env
-python main.py --mode RL --policy GePPO --env Walker2d-v3 --seed $1
+python main.py --mode RL --policy GePPO --env BipedalWalkerHardcore-v3 --max_iter 600 --seed $1
 
 

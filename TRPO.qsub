@@ -1,12 +1,12 @@
 #!/bin/bash -l
 
-#$ -l h_rt=72:00:00
+#$ -l h_rt=216:00:00
 
 #$ -m e
 
 #$ -j y
 
-#$ -N TRPO_Walker2d-v3
+#$ -N TRPO_BipedalWalkerHardcore-v3
 
 #$ -V
 
@@ -16,4 +16,4 @@
 module load miniconda
 
 conda activate /project/onr/vgiammar/RL_env
-python main.py --mode RL --policy TRPO --env Walker2d-v3 --seed $1
+python main.py --mode RL --policy TRPO --env BipedalWalkerHardcore-v3 --max_iter 600 --seed $1
