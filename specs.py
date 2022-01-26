@@ -37,7 +37,7 @@ specs['BipedalWalker-v3']['evaluation_max_n_steps'] = 2000
 specs['BipedalWalkerHardcore-v3']={}
 specs['BipedalWalkerHardcore-v3']['number_steps_per_iter'] = 30000
 specs['BipedalWalkerHardcore-v3']['eval_freq'] = 1
-specs['BipedalWalkerHardcore-v3']['max_iter'] = 334
+specs['BipedalWalkerHardcore-v3']['max_iter'] = 600
 specs['BipedalWalkerHardcore-v3']['evaluation_episodes'] = 10
 specs['BipedalWalkerHardcore-v3']['evaluation_max_n_steps'] = 2000
 

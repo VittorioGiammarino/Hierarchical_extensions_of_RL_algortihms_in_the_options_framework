@@ -24,7 +24,9 @@ specs = load_obj('specs')
 #                 'HandManipulateEgg-v0', 'HandManipulatePen-v0', 'HandReach-v0']
 
 environments = ['BipedalWalker-v3', 'LunarLander-v2', 'LunarLanderContinuous-v2', 'Ant-v3', 'HalfCheetah-v3', 'Hopper-v3', 
-                'Humanoid-v3', 'HumanoidStandup-v2', 'Swimmer-v3', 'Walker2d-v3']
+                'Humanoid-v3', 'HumanoidStandup-v2', 'Swimmer-v3', 'Walker2d-v3', 'BipedalWalkerHardcore-v3']
+
+environments = ['BipedalWalkerHardcore-v3']
 
 modes = ['RL', 'HRL']
 RL_algorithms = ['PPO', 'TRPO', 'UATRPO', 'GePPO', 'TD3', 'SAC']
@@ -85,21 +87,43 @@ for env in environments:
                 with open(f'results/HRL/evaluation_HRL_H{policy}_nOptions_3_{env}_{seed}.npy', 'rb') as f:
                     HRL_3.append(np.load(f, allow_pickle=True)) 
                 
-            mean = np.mean(np.array(RL),0)
-            steps = np.linspace(0,(specs[env]['max_iter']*specs[env]['number_steps_per_iter']),len(mean))
-            std = np.std(np.array(RL),0)
-            axes.plot(steps, mean, label=policy, c=colors[policy])
-            axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[policy])
-            
-            mean = np.mean(np.array(HRL_2),0)
-            std = np.std(np.array(HRL_2),0)
-            axes.plot(steps, mean, label=f'H{policy} 2 options', c=colors[f'H{policy}_2'])
-            axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_2'])
-            
-            mean = np.mean(np.array(HRL_3),0)
-            std = np.std(np.array(HRL_3),0)
-            axes.plot(steps, mean, label=f'H{policy} 3 options', c=colors[f'H{policy}_3'])
-            axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_3'])
+            try:
+                mean = np.mean(np.array(RL), 0)
+                steps = np.linspace(0,((len(mean)-1)*specs[env]['number_steps_per_iter']),len(mean))
+                std = np.std(np.array(RL),0)
+                axes.plot(steps, mean, label=policy, c=colors[policy])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[policy])
+                
+                mean = np.mean(np.array(HRL_2),0)
+                std = np.std(np.array(HRL_2),0)
+                axes.plot(steps, mean, label=f'H{policy} 2 options', c=colors[f'H{policy}_2'])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_2'])
+                
+                mean = np.mean(np.array(HRL_3),0)
+                std = np.std(np.array(HRL_3),0)
+                axes.plot(steps, mean, label=f'H{policy} 3 options', c=colors[f'H{policy}_3'])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_3'])
+                
+            except:
+                RL_new = []
+                for s in range(len(RL)):
+                    RL_new.append(RL[s][0:301])
+                    
+                mean = np.mean(np.array(RL_new), 0)
+                steps = np.linspace(0,((len(mean)-1)*specs[env]['number_steps_per_iter']),len(mean))
+                std = np.std(np.array(RL_new),0)
+                axes.plot(steps, mean, label=policy, c=colors[policy])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[policy])
+                
+                mean = np.mean(np.array(HRL_2),0)
+                std = np.std(np.array(HRL_2),0)
+                axes.plot(steps, mean, label=f'H{policy} 2 options', c=colors[f'H{policy}_2'])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_2'])
+                
+                mean = np.mean(np.array(HRL_3),0)
+                std = np.std(np.array(HRL_3),0)
+                axes.plot(steps, mean, label=f'H{policy} 3 options', c=colors[f'H{policy}_3'])
+                axes.fill_between(steps, mean-std, mean+std, alpha=0.2, facecolor=colors[f'H{policy}_3'])
             
             axes.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), fancybox=True, shadow=True, ncol=3)
             axes.set_xlabel('Steps')
@@ -107,6 +131,9 @@ for env in environments:
             
             i+=1
             
+    if not os.path.exists(f"./Figures/{env}"):
+        os.makedirs(f"./Figures/{env}")
+    
     plt.savefig(f'Figures/{env}/{env}_comparison.pdf', format='pdf', bbox_inches='tight')
             
             
