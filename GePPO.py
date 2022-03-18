@@ -163,37 +163,46 @@ class GePPO:
             self.buffer.clear_Adv(i)
             
             for l in range(len(episode_length)):     
-                    
-                episode_states = states[l]
-                episode_actions = actions[l]
-                episode_rewards = rewards[l]
-                episode_gammas = gammas[l]
-                episode_log_pi_old = log_pi_old[l]
                 
-                K = episode_length[l]
+                with torch.no_grad():
+                    
+                    episode_states = states[l]
+                    episode_actions = actions[l]
+                    episode_rewards = rewards[l]
+                    episode_gammas = gammas[l]
+                    episode_log_pi_old = log_pi_old[l]
+                    
+                    K = episode_length[l]
+                                    
+                    self.value_function.eval()
+                    current_values = self.value_function(episode_states).detach()
+                    next_values = torch.cat((self.value_function(episode_states)[1:], torch.FloatTensor([[0.]]))).detach()
+                    episode_deltas = episode_rewards.unsqueeze(-1) + self.gae_gamma*next_values - current_values  
+                    
+                    episode_adv = []
+                    
+                    for j in range(K):
+                        
+                        try:
+                            if self.action_space == "Discrete":
+                                _, log_prob_rollout = self.actor.sample_log(episode_states[j:], episode_actions[j:])
+                                log_prob_rollout = log_prob_rollout.detach()
+                            elif self.action_space == "Continuous": 
+                                log_prob_rollout = self.actor.sample_log(episode_states[j:], episode_actions[j:])
+                                log_prob_rollout = log_prob_rollout.detach()
                                 
-                self.value_function.eval()
-                current_values = self.value_function(episode_states).detach()
-                next_values = torch.cat((self.value_function(episode_states)[1:], torch.FloatTensor([[0.]]))).detach()
-                episode_deltas = episode_rewards.unsqueeze(-1) + self.gae_gamma*next_values - current_values  
-                
-                if self.action_space == "Discrete":
-                    _, log_prob_rollout = self.actor.sample_log(episode_states, episode_actions)
-                    log_prob_rollout = log_prob_rollout.detach()
-                elif self.action_space == "Continuous": 
-                    log_prob_rollout = self.actor.sample_log(episode_states, episode_actions)
-                    log_prob_rollout = log_prob_rollout.detach()
-                    
-                r = (torch.exp(log_prob_rollout - episode_log_pi_old)).squeeze()
-                r_trunc = torch.min(self.c_trunc*torch.ones_like(r), r)
-                try:
-                    episode_lambdas = torch.FloatTensor([(r_trunc[:j]).prod() for j in range(K)])
-                except:
-                    episode_lambdas = r_trunc
-                    
-                episode_advantage = torch.FloatTensor([((episode_gammas*(episode_lambdas))[:K-j].unsqueeze(-1)*episode_deltas[j:]).sum() for j in range(K)])
-                
-                self.buffer.add_Adv(i, episode_advantage.detach())
+                            r = (torch.exp(log_prob_rollout - episode_log_pi_old[j:])).squeeze()
+                            r_trunc = torch.min(self.c_trunc*torch.ones_like(r), r)
+                            pi_adjust = torch.FloatTensor([(r_trunc[:k]).prod() for k in range(1,len(r_trunc))]).to(device)
+                            pi_adjust_full = torch.cat((torch.FloatTensor([1.]).to(device), pi_adjust))
+                        
+                        except:
+                            pi_adjust_full = torch.FloatTensor([1.]).to(device)
+                            
+                        episode_adv.append(episode_gammas[:K-j].unsqueeze(-1)*pi_adjust_full*episode_deltas[j:]).sum())
+                        
+                    episode_advantage = torch.FloatTensor(episode_adv)
+                    self.buffer.add_Adv(i, episode_advantage.detach())
     
     def train(self, Entropy = False):
         
