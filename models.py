@@ -36,7 +36,7 @@ class TanhGaussianHierarchicalActor:
             mean = self.net(state)
             log_std = self.log_std.clamp(-20,2)
             std = torch.exp(log_std) 
-            return mean.cpu(), std.cpu()
+            return mean, std
         
         def squash(self, raw_values):
             squashed = ((torch.tanh(raw_values.detach())+1)/2.0)*(self.high-self.low)+self.low
@@ -45,7 +45,7 @@ class TanhGaussianHierarchicalActor:
             return squashed.float()
         
         def unsquash(self, values):
-            normed_values = (values - self.low)/(self.high - self.low)*2.0 - 1.0
+            normed_values = (values - self.low[0])/(self.high[0] - self.low[0])*2.0 - 1.0
             stable_normed_values = torch.clamp(normed_values, -1+1e-4, 1-1e-4)
             unsquashed = torch.atanh(stable_normed_values)
             return unsquashed.float()

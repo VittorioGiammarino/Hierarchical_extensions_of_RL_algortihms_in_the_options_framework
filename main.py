@@ -16,6 +16,7 @@ from gym.wrappers import FilterObservation, FlattenObservation
 import runner
 
 import SAC
+import AWAC
 import TD3
 import PPO
 import TRPO
@@ -76,6 +77,22 @@ def HRL(env, args, seed):
         }
 
         Agent_RL = SAC.SAC(**kwargs)
+        
+        run_sim = runner.run_SAC(Agent_RL)
+        evaluation_RL, Agent_RL = run_sim.run(env, args, seed)
+        
+        return evaluation_RL, Agent_RL
+    
+    if args.policy == "AWAC":
+        kwargs = {
+         "state_dim": state_dim,
+         "action_dim": action_dim,
+         "action_space_cardinality": action_space_cardinality,
+         "max_action": max_action,
+         "min_action": min_action
+        }
+
+        Agent_RL = AWAC.AWAC(**kwargs)
         
         run_sim = runner.run_SAC(Agent_RL)
         evaluation_RL, Agent_RL = run_sim.run(env, args, seed)
@@ -306,11 +323,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     #General
     parser.add_argument("--mode", default="RL", help='supported modes are HVI, HRL and RL (default = "HVI")')     
-    parser.add_argument("--env", default="BipedalWalker-v3")               # Sets Gym, PyTorch and Numpy seeds
+    parser.add_argument("--env", default="Humanoid-v3")               # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--action_space", default="Continuous")               # Sets Gym, PyTorch and Numpy seeds
     
     parser.add_argument("--number_options", default=2, type=int)     # number of options
-    parser.add_argument("--policy", default="GePPO")                   # Policy name (TD3, DDPG or OurDDPG)
+    parser.add_argument("--policy", default="SAC")                   # Policy name (TD3, DDPG or OurDDPG)
     parser.add_argument("--seed", default=0, type=int)               # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--number_steps_per_iter", default=30000, type=int) # Time steps initial random policy is used 25e3
     parser.add_argument("--eval_freq", default=1, type=int)          # How often (time steps) we evaluate

@@ -38,7 +38,12 @@ class SAC(object):
             self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=l_rate_critic)
         
         self.target_entropy = -torch.FloatTensor([action_dim]).to(device)
-        self.log_alpha = torch.zeros(1, requires_grad=True).to(device)
+        
+        try:
+            self.log_alpha = torch.zeros(1, requires_grad=True, device='cuda')
+        except:
+            self.log_alpha = torch.zeros(1, requires_grad=True)
+            
         self.alpha_optim = torch.optim.Adam([self.log_alpha], lr = l_rate_alpha)     
 
         self.state_dim = state_dim
